@@ -47,18 +47,16 @@ export function InputForm() {
     alert(JSON.stringify(data));
   };
   return (
-    <div className="w-[500px]  p-[20px] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ">
+    <div className="w-[350px]  p-[20px] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border-2 rounded-xl border-slate-200">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="w-2/3 space-y-6"
+          className="w-full leading-8"
         >
           <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
             계정을 생성합니다
           </h3>
-          <p className="leading-0 [&:not(:first-child)]:mt-0">
-            필수 정보를 입력해볼게요
-          </p>
+          <p className="text-sm my-[10px]">필수 정보를 입력해볼게요</p>
           <FormField
             control={form.control}
             name="username"
@@ -122,7 +120,9 @@ export function InputForm() {
               </FormItem>
             )}
           />
-          <Button type="submit">계정 등록하기</Button>
+          <Button type="submit" className="mt-[20px]">
+            계정 등록하기
+          </Button>
         </form>
       </Form>
     </div>
