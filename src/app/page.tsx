@@ -22,17 +22,25 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-const FormSchema = z.object({
-  username: z.string().min(2, {
-    message: "이름은 2글자 이상이어야 합니다.",
-  }),
-  email: z.string().email({
-    message: "올바른 이메일을 입력해주세요.",
-  }),
-  phone: z.string().length(11, { message: "연락처는 11자리여야 합니다" }),
-  role: z.string().nonempty({ message: "역할을 선택해야 합니다." }),
-  password: z.string().min(6, { message: "비밀번호는 6자 이상이어야 합니다." }),
-});
+const FormSchema = z
+  .object({
+    username: z.string().min(2, {
+      message: "이름은 2글자 이상이어야 합니다.",
+    }),
+    email: z.string().email({
+      message: "올바른 이메일을 입력해주세요.",
+    }),
+    phone: z.string().length(11, { message: "연락처는 11자리여야 합니다" }),
+    role: z.string().nonempty({ message: "역할을 선택해야 합니다." }),
+    password: z
+      .string()
+      .min(6, { message: "비밀번호는 6자 이상이어야 합니다." }),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "비밀번호가 일치하지 않습니다.",
+    path: ["confirmPassword"],
+  });
 
 export function InputForm() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -44,6 +52,7 @@ export function InputForm() {
       phone: "",
       role: "",
       password: "",
+      confirmPassword: "",
     },
   });
 
@@ -144,22 +153,37 @@ export function InputForm() {
           )}
           {currentStep === 2 && (
             // 두 번째 단계 폼 필드
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>비밀번호</FormLabel>
-                  <FormControl>
-                    <Input type="password" {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    비밀번호는 6자 이상이여야합니다.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <>
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>비밀번호</FormLabel>
+                    <FormControl>
+                      <Input type="password" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      비밀번호는 6자 이상이여야합니다.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>비밀번호 확인</FormLabel>
+                    <FormControl>
+                      <Input type="password" {...field} />
+                    </FormControl>
+                    <FormMessage>{errors.confirmPassword?.message}</FormMessage>
+                  </FormItem>
+                )}
+              />
+            </>
           )}
           {currentStep === 1 && (
             <Button type="button" className="mt-[20px]" onClick={onNextStep}>
