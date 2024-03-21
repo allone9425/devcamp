@@ -1,3 +1,13 @@
 {
-  "accounts": []
+  "accounts": [
+    {
+      "id": "d34f",
+      "username": "김나나",
+      "email": "aaa@naver.com",
+      "phone": "01012345849",
+      "role": "일반사용자",
+      "password": "qqq111!!",
+      "confirmPassword": "qqq111!!"
+    }
+  ]
 }
