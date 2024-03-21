@@ -10,6 +10,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
 import { login } from "@/utils/login";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -32,13 +33,24 @@ export default function InputForm() {
   });
 
   const [loginMessage, setLoginMessage] = useState("");
+  const { toast } = useToast(); // Toast 사용을 위한 Hook 호출
 
-  const onSubmit = async (data: z.infer<typeof FormSchema>) => {
-    const { email, password } = data;
-    const isSuccess = await login(email, password);
-    setLoginMessage(isSuccess ? "로그인 성공" : "로그인 실패");
-  };
-
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    const isLoggedIn = await login(data.email, data.password);
+    if (isLoggedIn) {
+      toast({
+        variant: "default",
+        title: "로그인 성공",
+        description: "환영합니다!",
+      });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "로그인 실패",
+        description: "이메일 또는 비밀번호가 잘못되었습니다.",
+      });
+    }
+  }
   return (
     <div className="w-[350px]  p-[20px] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border-2 rounded-xl border-slate-200">
       <Form {...form}>
