@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { saveAccountData } from "@/utils/save";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -44,6 +45,9 @@ const FormSchema = z
 
 export default function Joinpage() {
   const [currentStep, setCurrentStep] = useState(1);
+
+  const router = useRouter();
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -199,9 +203,19 @@ export default function Joinpage() {
             </Button>
           )}
           {currentStep === 2 && (
-            <Button type="submit" className="mt-[20px]">
-              계정 등록하기
-            </Button>
+            <>
+              <Button type="submit" className="mt-[20px]">
+                계정 등록하기
+              </Button>
+
+              <Button
+                type="button"
+                className="ml-[20px]"
+                onClick={() => router.replace("/")}
+              >
+                로그인
+              </Button>
+            </>
           )}
         </form>
       </Form>
