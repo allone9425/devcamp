@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { login } from "@/utils/login";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -35,6 +36,7 @@ export default function InputForm() {
   const [loginMessage, setLoginMessage] = useState("");
   const { toast } = useToast(); // Toast 사용을 위한 Hook 호출
 
+  const router = useRouter();
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     const isLoggedIn = await login(data.email, data.password);
     if (isLoggedIn) {
@@ -87,6 +89,13 @@ export default function InputForm() {
           />
           <Button className="mt-[20px]" type="submit">
             로그인
+          </Button>
+          <Button
+            type="button"
+            className="ml-[20px]"
+            onClick={() => router.replace("join")}
+          >
+            회원가입
           </Button>
           {loginMessage && <p>{loginMessage}</p>}
         </form>
