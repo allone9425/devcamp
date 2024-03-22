@@ -8,13 +8,16 @@ export interface AccountData {
 export async function saveAccountData(
   accountData: AccountData
 ): Promise<AccountData> {
-  const response = await fetch("http://localhost:4000/accounts", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(accountData),
-  });
+  const response = await fetch(
+    "https://simplistic-respected-blackcurrant.glitch.me/accounts",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(accountData),
+    }
+  );
 
   if (!response.ok) {
     throw new Error("API 호출에 실패했습니다.");

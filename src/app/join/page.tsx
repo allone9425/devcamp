@@ -42,7 +42,7 @@ const FormSchema = z
     path: ["confirmPassword"],
   });
 
-export function InputForm() {
+export default function Joinpage() {
   const [currentStep, setCurrentStep] = useState(1);
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -208,5 +208,3 @@ export function InputForm() {
     </div>
   );
 }
-
-export default InputForm;
