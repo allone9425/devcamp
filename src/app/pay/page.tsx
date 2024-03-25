@@ -183,9 +183,6 @@ function pay() {
                   </div>
                 </RadioGroup>
               </FormControl>
-              <FormMessage className="ml-[20px]">
-                결제 수단을 선택해주세요.
-              </FormMessage>
             </FormItem>
           )}
         />
