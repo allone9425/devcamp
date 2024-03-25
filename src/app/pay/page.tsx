@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useForm } from "react-hook-form";
-function pay() {
+function Pay() {
   const form = useForm();
   return (
     <div className="w-1/2 mx-auto">
@@ -195,4 +195,4 @@ function pay() {
   );
 }
 
-export default pay;
+export default Pay;
