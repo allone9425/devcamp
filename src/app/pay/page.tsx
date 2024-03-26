@@ -17,6 +17,12 @@ import { useForm } from "react-hook-form";
 function Pay() {
   const [userInfo, setUserInfo] = useState({ name: "", phone: "" });
   const [couponCode, setCouponCode] = useState("");
+  // 쿠폰 할인 금액
+  const [discount, setDiscount] = useState(0);
+  // 최종 결제 금액
+  const [finalPrice, setFinalPrice] = useState(32500);
+
+  //주문자정보 불러오기
   useEffect(() => {
     const storedUserInfo = localStorage.getItem("userInfo");
     if (storedUserInfo) {
@@ -27,25 +33,34 @@ function Pay() {
       });
     }
   }, []);
+
   const form = useForm();
   const { toast } = useToast();
+
   // Mockup 쿠폰 데이터
   const coupons = [
     { code: "DISCOUNT50", type: "flatRate", value: 5000 },
     { code: "DISCOUNT30", type: "rate", value: 30 },
   ];
+
   const applyCoupon = () => {
     const coupon = coupons.find((c) => c.code === couponCode.toUpperCase());
+    // 배송비
+    const deliveryCharge = 2500;
     if (coupon) {
       let message = "";
+      let discountAmount = 0;
+
       if (coupon.type === "flatRate") {
-        message = `₩${coupon.value} 할인이 적용되었습니다.`;
+        discountAmount = coupon.value;
+        message = `₩${discountAmount} 할인이 적용되었습니다.`;
         toast({
           variant: "default",
           title: "할인 적용 성공",
           description: message,
         });
       } else if (coupon.type === "rate") {
+        discountAmount = 30000 * (coupon.value / 100);
         message = `${coupon.value}% 할인이 적용되었습니다.`;
         toast({
           variant: "default",
@@ -53,6 +68,9 @@ function Pay() {
           description: message,
         });
       }
+
+      setDiscount(discountAmount);
+      setFinalPrice(30000 - discountAmount + deliveryCharge);
     } else {
       toast({
         variant: "destructive",
@@ -61,6 +79,7 @@ function Pay() {
       });
     }
   };
+
   return (
     <div className="w-1/2 mx-auto">
       <Form {...form}>
@@ -199,16 +218,16 @@ function Pay() {
                     </div>
                     <div className="flex w-full justify-between">
                       <p className="mr-[10px]">쿠폰할인</p>
-                      <p>-1,000원</p>
+                      <p>{discount.toLocaleString()}원</p>
                     </div>
                     <div className="flex w-full justify-between">
                       <p className="mr-[20px]">적립금 사용</p>
-                      <p>-3,000원</p>
+                      <p>0원</p>
                     </div>
                   </div>
                   <div className="flex bg-gray-100 font-bold pl-[20px] py-[10px] px-[10px] mt-[20px] justify-between">
                     <h4 className="mr-[10px]">최종 결제 금액</h4>
-                    <h4>28,500원</h4>
+                    <h4>{finalPrice.toLocaleString()}원</h4>
                   </div>
                 </>
               </FormControl>
