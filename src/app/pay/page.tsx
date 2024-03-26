@@ -11,8 +11,20 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 function Pay() {
+  const [userInfo, setUserInfo] = useState({ name: "", phone: "" });
+  useEffect(() => {
+    const storedUserInfo = localStorage.getItem("userInfo");
+    if (storedUserInfo) {
+      const parsedUserInfo = JSON.parse(storedUserInfo);
+      setUserInfo({
+        name: parsedUserInfo.username,
+        phone: parsedUserInfo.phone,
+      });
+    }
+  }, []);
   const form = useForm();
   return (
     <div className="w-1/2 mx-auto">
@@ -80,8 +92,8 @@ function Pay() {
               </FormLabel>
               <FormControl>
                 <>
-                  <h4 className=" ml-[20px]">김나나</h4>
-                  <h4 className=" ml-[20px] pb-[20px]">010-1234-5678</h4>
+                  <h4 className=" ml-[20px]">{userInfo.name}</h4>
+                  <h4 className=" ml-[20px] pb-[20px]">{userInfo.phone}</h4>
                   <FormMessage />
                 </>
               </FormControl>
