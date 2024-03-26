@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 function Pay() {
@@ -36,7 +37,7 @@ function Pay() {
 
   const form = useForm();
   const { toast } = useToast();
-
+  const router = useRouter();
   // Mockup 쿠폰 데이터
   const coupons = [
     { code: "DISCOUNT50", type: "flatRate", value: 5000 },
@@ -82,6 +83,11 @@ function Pay() {
     }
   };
 
+  // 로그아웃  함수
+  const handleLogout = () => {
+    localStorage.removeItem("userInfo");
+    router.push("/");
+  };
   return (
     <div className="w-1/2 mx-auto">
       <Form {...form}>
@@ -268,6 +274,9 @@ function Pay() {
           결제하기
         </Button>
       </Form>
+      <Button type="button" onClick={handleLogout} className="float-right">
+        로그아웃
+      </Button>
     </div>
   );
 }
