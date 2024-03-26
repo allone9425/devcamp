@@ -11,10 +11,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useToast } from "@/components/ui/use-toast";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 function Pay() {
   const [userInfo, setUserInfo] = useState({ name: "", phone: "" });
+  const [couponCode, setCouponCode] = useState("");
   useEffect(() => {
     const storedUserInfo = localStorage.getItem("userInfo");
     if (storedUserInfo) {
@@ -26,6 +28,39 @@ function Pay() {
     }
   }, []);
   const form = useForm();
+  const { toast } = useToast();
+  // Mockup 쿠폰 데이터
+  const coupons = [
+    { code: "DISCOUNT50", type: "flatRate", value: 5000 },
+    { code: "DISCOUNT30", type: "rate", value: 30 },
+  ];
+  const applyCoupon = () => {
+    const coupon = coupons.find((c) => c.code === couponCode.toUpperCase());
+    if (coupon) {
+      let message = "";
+      if (coupon.type === "flatRate") {
+        message = `₩${coupon.value} 할인이 적용되었습니다.`;
+        toast({
+          variant: "default",
+          title: "할인 적용 성공",
+          description: message,
+        });
+      } else if (coupon.type === "rate") {
+        message = `${coupon.value}% 할인이 적용되었습니다.`;
+        toast({
+          variant: "default",
+          title: "할인 적용 성공",
+          description: message,
+        });
+      }
+    } else {
+      toast({
+        variant: "destructive",
+        title: "할인 적용 실패",
+        description: "유효하지 않은 쿠폰 코드입니다.",
+      });
+    }
+  };
   return (
     <div className="w-1/2 mx-auto">
       <Form {...form}>
@@ -111,8 +146,17 @@ function Pay() {
                 <>
                   <div className="flex mb-[20px]">
                     <h4 className=" ml-[20px] mr-[10px]">쿠폰</h4>
-                    <h4>미사용</h4>
-                    <Button type="button" className="ml-[10px] mb-[10px]">
+                    <Input
+                      className="w-[calc(100%-180px)]"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value)}
+                      placeholder="쿠폰 코드 입력"
+                    />
+                    <Button
+                      type="button"
+                      className="ml-[10px] mb-[10px]"
+                      onClick={applyCoupon}
+                    >
                       쿠폰 적용
                     </Button>
                   </div>
