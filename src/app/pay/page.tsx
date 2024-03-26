@@ -72,6 +72,8 @@ function Pay() {
       setDiscount(discountAmount);
       setFinalPrice(30000 - discountAmount + deliveryCharge);
     } else {
+      setDiscount(0);
+      setFinalPrice(30000 + deliveryCharge);
       toast({
         variant: "destructive",
         title: "할인 적용 실패",
