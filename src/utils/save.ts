@@ -9,7 +9,7 @@ export async function saveAccountData(
   accountData: AccountData
 ): Promise<AccountData> {
   const response = await fetch(
-    "https://simplistic-respected-blackcurrant.glitch.me/accounts",
+    "https://enshrined-meadow-aluminum.glitch.me/accounts",
     {
       method: "POST",
       headers: {

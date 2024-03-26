@@ -39,12 +39,16 @@ export default function InputForm() {
   const router = useRouter();
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     const isLoggedIn = await login(data.email, data.password);
+
     if (isLoggedIn) {
+      localStorage.setItem("userInfo", JSON.stringify(isLoggedIn));
       toast({
         variant: "default",
         title: "로그인 성공",
         description: "환영합니다!",
       });
+
+      router.push("/pay");
     } else {
       toast({
         variant: "destructive",
