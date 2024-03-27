@@ -15,6 +15,12 @@ import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+interface PointInfo {
+  totalPoints: number;
+  usedPoints: number;
+  isUsed: boolean;
+}
+
 function Pay() {
   const [userInfo, setUserInfo] = useState({ name: "", phone: "" });
   const [couponCode, setCouponCode] = useState("");
@@ -22,6 +28,14 @@ function Pay() {
   const [discount, setDiscount] = useState(0);
   // 최종 결제 금액
   const [finalPrice, setFinalPrice] = useState(32500);
+
+  //적립금 정보
+  const [pointInfo, setPointInfo] = useState<PointInfo>({
+    totalPoints: 3000,
+    usedPoints: 0,
+    isUsed: false,
+  });
+  const [inputPoints, setInputPoints] = useState(0);
 
   //주문자정보 불러오기
   useEffect(() => {
@@ -79,6 +93,25 @@ function Pay() {
         variant: "destructive",
         title: "할인 적용 실패",
         description: "유효하지 않은 쿠폰 코드입니다.",
+      });
+    }
+  };
+
+  const applyPoints = (): void => {
+    if (inputPoints <= pointInfo.totalPoints && inputPoints <= finalPrice) {
+      setPointInfo({
+        ...pointInfo,
+        usedPoints: inputPoints,
+        isUsed: true,
+      });
+      setFinalPrice(finalPrice - inputPoints);
+    } else {
+      setInputPoints(0);
+      toast({
+        variant: "destructive",
+        title: "적립금 사용 실패",
+        description:
+          "사용 가능한 적립금이 부족하거나 결제 금액을 초과했습니다.",
       });
     }
   };
@@ -165,42 +198,70 @@ function Pay() {
         <FormField
           name="couponInfo"
           render={() => (
-            <FormItem className="border-2 my-[30px] leading-9 pt-[20px]">
+            <FormItem className="border-2 my-[30px] leading-9 pt-[20px] pb-[40px]">
               <FormLabel className="mt-[20px] mb-[10px] text-xl font-bold ml-[20px]">
-                쿠폰 / 적립금
+                쿠폰
               </FormLabel>
               <FormControl>
-                <>
-                  <div className="flex mb-[20px]">
-                    <h4 className=" ml-[20px] mr-[10px]">쿠폰</h4>
+                <div className="flex mb-[20px]">
+                  <h4 className=" ml-[20px] mr-[10px]">쿠폰</h4>
+                  <Input
+                    className="w-[calc(100%-180px)]"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value)}
+                    placeholder="쿠폰 코드 입력"
+                  />
+                  <Button
+                    type="button"
+                    className="ml-[10px] mb-[10px]"
+                    onClick={applyCoupon}
+                  >
+                    쿠폰 적용
+                  </Button>
+                </div>
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          name="pointInfo"
+          render={() => (
+            <FormItem className="border-2 my-[30px] leading-9 pt-[20px]">
+              <FormLabel className="mt-[20px] mb-[10px] text-xl font-bold ml-[20px]">
+                적립금
+              </FormLabel>
+              <FormControl>
+                <div className="flex flex-wrap items-center justify-between w-full ml-[20px] mb-[20px]">
+                  <p className="w-[60px] ">적립금</p>
+                  <div className="flex  w-[calc(100%-60px)] ">
                     <Input
-                      className="w-[calc(100%-180px)]"
-                      value={couponCode}
-                      onChange={(e) => setCouponCode(e.target.value)}
-                      placeholder="쿠폰 코드 입력"
+                      type="text"
+                      value={inputPoints.toString()}
+                      onChange={(e) => {
+                        const enteredPoints = parseInt(e.target.value, 10);
+                        if (!isNaN(enteredPoints) && enteredPoints >= 0) {
+                          setInputPoints(enteredPoints);
+                        } else {
+                          setInputPoints(0);
+                        }
+                      }}
+                      placeholder="사용할 포인트 입력"
+                      disabled={pointInfo.isUsed || finalPrice === 0}
                     />
                     <Button
                       type="button"
-                      className="ml-[10px] mb-[10px]"
-                      onClick={applyCoupon}
+                      onClick={applyPoints}
+                      className="mr-[40px]  ml-[10px]"
                     >
-                      쿠폰 적용
+                      적립금 사용
                     </Button>
+                  </div>{" "}
+                  <div className="w-full flex justify-end mr-[40px]">
+                    <p className="mr-[10px] mb-[20px]">보유 적립금</p>
+                    <p>{pointInfo.totalPoints.toLocaleString()}원</p>
                   </div>
-                  <div className="flex flex-wrap items-center justify-between w-full ml-[20px] mb-[20px]">
-                    <p className="w-[60px] ">적립금</p>
-                    <div className="flex  w-[calc(100%-60px)] ">
-                      <Input type="text" className="  text-right" />
-                      <Button type="button" className="mr-[40px]  ml-[10px]">
-                        적립금 사용
-                      </Button>
-                    </div>
-                    <div className="w-full flex justify-end mr-[40px]">
-                      <p className="mr-[10px] mb-[20px]">보유 적립금</p>
-                      <p>3,000</p>
-                    </div>
-                  </div>
-                </>
+                </div>
               </FormControl>
             </FormItem>
           )}
@@ -226,11 +287,19 @@ function Pay() {
                     </div>
                     <div className="flex w-full justify-between">
                       <p className="mr-[10px]">쿠폰할인</p>
-                      <p>{discount.toLocaleString()}원</p>
+                      <p>
+                        {discount > 0
+                          ? `-${discount.toLocaleString()}원`
+                          : "0원"}
+                      </p>
                     </div>
                     <div className="flex w-full justify-between">
                       <p className="mr-[20px]">적립금 사용</p>
-                      <p>0원</p>
+                      <p>
+                        {pointInfo.usedPoints > 0
+                          ? `-${pointInfo.usedPoints.toLocaleString()}원`
+                          : "0원"}
+                      </p>
                     </div>
                   </div>
                   <div className="flex bg-gray-100 font-bold pl-[20px] py-[10px] px-[10px] mt-[20px] justify-between">
