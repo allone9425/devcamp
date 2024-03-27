@@ -66,29 +66,26 @@ function Pay() {
       let message = "";
       let discountAmount = 0;
 
+      const priceAfterPoints = 30000 - pointInfo.usedPoints;
+
       if (coupon.type === "flatRate") {
         discountAmount = coupon.value;
         message = `₩${discountAmount} 할인이 적용되었습니다.`;
-        toast({
-          variant: "default",
-          title: "할인 적용 성공",
-          description: message,
-        });
       } else if (coupon.type === "rate") {
-        discountAmount = 30000 * (coupon.value / 100);
+        discountAmount = priceAfterPoints * (coupon.value / 100);
         message = `${coupon.value}% 할인이 적용되었습니다.`;
-        toast({
-          variant: "default",
-          title: "할인 적용 성공",
-          description: message,
-        });
       }
 
       setDiscount(discountAmount);
-      setFinalPrice(30000 - discountAmount + deliveryCharge);
+
+      setFinalPrice(priceAfterPoints - discountAmount + deliveryCharge);
+
+      toast({
+        variant: "default",
+        title: "할인 적용 성공",
+        description: message,
+      });
     } else {
-      setDiscount(0);
-      setFinalPrice(30000 + deliveryCharge);
       toast({
         variant: "destructive",
         title: "할인 적용 실패",
@@ -195,34 +192,6 @@ function Pay() {
             </FormItem>
           )}
         />
-        <FormField
-          name="couponInfo"
-          render={() => (
-            <FormItem className="border-2 my-[30px] leading-9 pt-[20px] pb-[40px]">
-              <FormLabel className="mt-[20px] mb-[10px] text-xl font-bold ml-[20px]">
-                쿠폰
-              </FormLabel>
-              <FormControl>
-                <div className="flex mb-[20px]">
-                  <h4 className=" ml-[20px] mr-[10px]">쿠폰</h4>
-                  <Input
-                    className="w-[calc(100%-180px)]"
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value)}
-                    placeholder="쿠폰 코드 입력"
-                  />
-                  <Button
-                    type="button"
-                    className="ml-[10px] mb-[10px]"
-                    onClick={applyCoupon}
-                  >
-                    쿠폰 적용
-                  </Button>
-                </div>
-              </FormControl>
-            </FormItem>
-          )}
-        />
 
         <FormField
           name="pointInfo"
@@ -261,6 +230,34 @@ function Pay() {
                     <p className="mr-[10px] mb-[20px]">보유 적립금</p>
                     <p>{pointInfo.totalPoints.toLocaleString()}원</p>
                   </div>
+                </div>
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <FormField
+          name="couponInfo"
+          render={() => (
+            <FormItem className="border-2 my-[30px] leading-9 pt-[20px] pb-[40px]">
+              <FormLabel className="mt-[20px] mb-[10px] text-xl font-bold ml-[20px]">
+                쿠폰
+              </FormLabel>
+              <FormControl>
+                <div className="flex mb-[20px]">
+                  <h4 className=" ml-[20px] mr-[10px]">쿠폰</h4>
+                  <Input
+                    className="w-[calc(100%-180px)]"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value)}
+                    placeholder="쿠폰 코드 입력"
+                  />
+                  <Button
+                    type="button"
+                    className="ml-[10px] mb-[10px]"
+                    onClick={applyCoupon}
+                  >
+                    쿠폰 적용
+                  </Button>
                 </div>
               </FormControl>
             </FormItem>
