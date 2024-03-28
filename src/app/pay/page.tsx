@@ -26,6 +26,16 @@ interface PointInfo {
   isUsed: boolean;
 }
 
+interface PaymentInfo {
+  orderId: string;
+  orderName: string;
+  customerName: string;
+  customerEmail: string;
+  successUrl: string;
+  failUrl: string;
+  amount: number; // 새로운 속성 추가
+}
+
 function Pay() {
   const [userInfo, setUserInfo] = useState({ name: "", phone: "" });
   const [couponCode, setCouponCode] = useState("");
@@ -136,21 +146,52 @@ function Pay() {
       });
     }
   };
-
   const handlePayment = async () => {
     const paymentWidget = paymentWidgetRef.current;
+
     try {
-      await paymentWidget?.requestPayment({
+      // 쿠폰과 적립금을 반영한 최종 결제 금액 계산
+      const finalAmount = calculateFinalAmount();
+
+      // 최종 결제 금액을 사용하여 결제 정보 생성
+      const paymentInfo: PaymentInfo = {
         orderId: nanoid(),
         orderName: "상품명 예시",
         customerName: "고객 이름",
         customerEmail: "customer@example.com",
-        successUrl: `${window.location.origin}/sucess`,
+        successUrl: `${window.location.origin}/success`,
         failUrl: `${window.location.origin}/fail`,
-      });
+        amount: finalAmount,
+      };
+
+      // 결제 요청 보내기
+      await paymentWidget?.requestPayment(paymentInfo);
     } catch (error) {
       console.error(error);
     }
+  };
+
+  // 쿠폰 및 적립금이 적용된 최종 결제 금액 계산 함수
+  // 쿠폰 및 적립금이 적용된 최종 결제 금액을 계산합니다.
+  const calculateFinalAmount = () => {
+    let finalAmount = finalPrice; // 기본적으로 finalPrice로 초기화합니다.
+
+    // 쿠폰이 적용되었을 경우
+    if (discount > 0) {
+      finalAmount -= discount; // 쿠폰 할인 금액을 최종 결제 금액에서 차감합니다.
+    }
+
+    // 적립금이 적용되었을 경우
+    if (pointInfo.isUsed && pointInfo.usedPoints > 0) {
+      finalAmount -= pointInfo.usedPoints; // 적립금 사용 금액을 최종 결제 금액에서 차감합니다.
+    }
+
+    // 최종 결제 금액이 음수가 되지 않도록 보장합니다.
+    if (finalAmount < 0) {
+      finalAmount = 0;
+    }
+
+    return finalAmount;
   };
 
   // 로그아웃  함수
