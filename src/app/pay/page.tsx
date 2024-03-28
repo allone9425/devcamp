@@ -10,11 +10,16 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/components/ui/use-toast";
+import {
+  PaymentWidgetInstance,
+  loadPaymentWidget,
+} from "@tosspayments/payment-widget-sdk";
+import { nanoid } from "nanoid";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+
 interface PointInfo {
   totalPoints: number;
   usedPoints: number;
@@ -36,7 +41,7 @@ function Pay() {
     isUsed: false,
   });
   const [inputPoints, setInputPoints] = useState(0);
-
+  const paymentWidgetRef = useRef<PaymentWidgetInstance | null>(null);
   //주문자정보 불러오기
   useEffect(() => {
     const storedUserInfo = localStorage.getItem("userInfo");
@@ -47,6 +52,25 @@ function Pay() {
         phone: parsedUserInfo.phone,
       });
     }
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const paymentWidget = await loadPaymentWidget(
+        "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm",
+        "YbX2HuSlsC9uVJW6NMRMj"
+      );
+      paymentWidgetRef.current = paymentWidget;
+
+      // 결제 방법 렌더링
+      paymentWidget.renderPaymentMethods(
+        "#payment-widget",
+        { value: finalPrice },
+        { variantKey: "DEFAULT" }
+      );
+      // 이용약관 렌더링
+      //paymentWidget.renderAgreement("#agreement");
+    })();
   }, []);
 
   const form = useForm();
@@ -110,6 +134,22 @@ function Pay() {
         description:
           "사용 가능한 적립금이 부족하거나 결제 금액을 초과했습니다.",
       });
+    }
+  };
+
+  const handlePayment = async () => {
+    const paymentWidget = paymentWidgetRef.current;
+    try {
+      await paymentWidget?.requestPayment({
+        orderId: nanoid(),
+        orderName: "상품명 예시",
+        customerName: "고객 이름",
+        customerEmail: "customer@example.com",
+        successUrl: `${window.location.origin}/sucess`,
+        failUrl: `${window.location.origin}/fail`,
+      });
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -317,26 +357,20 @@ function Pay() {
                 결제 수단
               </FormLabel>
               <FormControl>
-                <RadioGroup {...field} className="ml-[20px]">
-                  <div className="flex items-center space-x-2 mb-[10px]">
-                    <RadioGroupItem value="card" />
-                    <Label>신용카드</Label>
-                  </div>
-                  <div className="flex items-center space-x-2 mb-[10px]">
-                    <RadioGroupItem value="deposit" />
-                    <Label>무통장 입금</Label>
-                  </div>
-                  <div className="flex items-center space-x-2 mb-[10px]">
-                    <RadioGroupItem value="phone_payment" />
-                    <Label>핸드폰 결제</Label>
-                  </div>
-                </RadioGroup>
+                <div
+                  className="flex items-center mb-[10px]"
+                  id="payment-widget"
+                />
               </FormControl>
             </FormItem>
           )}
         />
 
-        <Button type="submit" className="w-full my-[20px]">
+        <Button
+          type="submit"
+          onClick={handlePayment}
+          className="w-full my-[20px]"
+        >
           결제하기
         </Button>
       </Form>
